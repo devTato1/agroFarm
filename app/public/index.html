@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="styles.css">
+  <title>Estado del sistema</title>
+</head>
+<body>
+  <div class="container">
+    <h1>Estado del sistema</h1>
+    <div class="card">
+      <h2>Bomba</h2>
+      <p id="bomba-estado">Estado de la bomba</p>
+    <div class="bomba">
+        <img id="bomba-imagen" src="src/apagado.jpg" alt="Bomba de agua" width="200" height="200">
+        <label class="switch">
+          <input type="checkbox" id="bomba-boton">
+          <span class="slider round"></span>
+          <br>
+          <br>
+          <span id="bomba-texto">Apagado</span>
+        </label>
+    </div>
+    </div>
+    <div class="card">
+      <h2>Clima</h2>
+      <p>Estado: <span id="clima-actual-estado">Estado del clima</span></p>
+      <p>Temperatura: <span id="clima-actual-temperatura">Temperatura actual</span></p>
+      <p>Humedad Ambiente: <span id="clima-actual-humedad">Humedad actual</span></p>
+ 
+    </div>
+    <div class="card">
+      <h2>Humedad del suelo</h2>
+      <p id="humedad-suelo">Humedad del suelo en la zona 1</p>
+    </div>
+  </div>
+  <script>
+    async function obtenerEstado() {
+      try {
+        const respuesta = await fetch('/estado');
+        const estado = await respuesta.json();
+
+        // Actualiza la interfaz con la información del estado
+
+        document.getElementById('bomba-estado').textContent = estado.bomba ? 'Apagada' : 'Encendida';
+        document.getElementById('clima-actual-estado').textContent = estado.clima.estado[0].description;
+        document.getElementById('clima-actual-temperatura').textContent = estado.clima.temperatura+'°C';
+        document.getElementById('clima-actual-humedad').textContent = estado.clima.humedad+'%';
+        document.getElementById('humedad-suelo').textContent = estado.humedad_suelo.humedad+'%';
+      } catch (error) {
+        console.error('Error al obtener el estado:', error);
+      }
+    }
+
+    obtenerEstado();
+
+    var imagenBomba = document.getElementById('bomba-imagen');
+    var bombaBoton = document.getElementById('bomba-boton');
+    var bombaTexto = document.getElementById('bomba-texto');
+
+    // Cambia la imagen dependiendo del estado de la bomba
+    bombaBoton.addEventListener('change', () => {
+      const encendida = bombaBoton.checked;
+
+      fetch(`/${encendida ? 'encender' : 'apagar'}`,)
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            document.getElementById('bomba-estado').textContent = data.bomba_encendida ? 'Encendida' : 'Apagada';
+            imagenBomba.src = data.bomba_encendida ? 'src/encendido.gif' : 'src/apagado.jpg';
+            bombaTexto.textContent = data.bomba_encendida ? 'Encendido' : 'Apagado';
+          } else {
+            alert(`No se pudo ${encendida ? 'encender' : 'apagar'} la bomba.`);
+          }
+        });
+    });
+  </script>
+</body>
+</html>

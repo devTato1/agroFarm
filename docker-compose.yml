@@ -1,0 +1,41 @@
+version: '3'
+services:
+  bomba:
+    build:
+      context: ./bombaApi
+    ports:
+      - "5000:5000"
+    networks:
+      - distribuida
+
+  clima:
+    build:
+      context: ./climaApi
+    ports:
+      - "5001:5001"
+    networks:
+      - distribuida
+
+  humedadsuelo:
+    build:
+      context: ./humedadSueloApi
+    ports:
+      - "5002:5002"
+    networks:
+      - distribuida  
+
+  app:
+    build:
+      context: ./App
+    ports:
+      - "3001:3001"
+    networks:
+      - distribuida
+    depends_on:
+      - bomba
+      - clima
+      - humedadsuelo
+      
+networks:
+  distribuida:
+    driver: bridge
